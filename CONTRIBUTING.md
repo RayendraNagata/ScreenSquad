@@ -45,9 +45,9 @@ test: add unit tests for auth
 
 When you submit code changes, your submissions are understood to be under the same [MIT License](LICENSE) that covers the project.
 
-## Report bugs using GitHub's [issue tracker](https://github.com/yourusername/screensquad/issues)
+## Report bugs using GitHub's [issue tracker](https://github.com/RayendraNagata/ScreenSquad/issues)
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/yourusername/screensquad/issues/new).
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/RayendraNagata/ScreenSquad/issues/new).
 
 **Great Bug Reports** tend to have:
 
