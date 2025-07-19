@@ -4,7 +4,7 @@
 
 ScreenSquad is a modern real-time synchronized viewing platform where groups can watch videos together with perfect sync, interactive reactions, and social features. Built with cutting-edge web technologies for seamless shared experiences.
 
-![ScreenSquad Banner](https://via.placeholder.com/1200x400/2563eb/ffffff?text=ScreenSquad+-+Group+Watch+Party+Platform)
+
 
 ## ✨ Features
 
