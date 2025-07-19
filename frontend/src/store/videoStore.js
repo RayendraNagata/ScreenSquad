@@ -25,6 +25,17 @@ const useVideoStore = create((set, get) => ({
   syncDrift: 0,
   isHost: false,
 
+  // Drift correction data
+  latencyHistory: [], // Array to store latency measurements
+  driftHistory: [], // Array to store drift measurements
+  lastPingTime: 0,
+  averageLatency: 0,
+  driftCorrectionActive: false,
+  targetSyncTime: 0,
+  adjustmentRate: 0.02, // Linear adjustment rate (2% per frame)
+  maxDriftTolerance: 1.0, // Maximum drift before correction (1 second)
+  minDriftTolerance: 0.1, // Minimum drift to trigger correction (100ms)
+
   // Actions
   loadVideo: async (videoUrl, metadata = {}) => {
     set({ isLoading: true, error: null });
@@ -147,6 +158,216 @@ const useVideoStore = create((set, get) => ({
     }
     
     return false; // Already in sync
+  },
+
+  // Advanced drift correction functions
+  measureLatency: async (socketStore) => {
+    const startTime = performance.now();
+    const pingId = Date.now();
+    
+    try {
+      // Send ping to server
+      await new Promise((resolve) => {
+        socketStore.socket?.emit('ping', { id: pingId, timestamp: startTime });
+        
+        const handlePong = (data) => {
+          if (data.id === pingId) {
+            const latency = (performance.now() - startTime) / 2; // Round trip / 2
+            get().updateLatencyHistory(latency);
+            socketStore.socket?.off('pong', handlePong);
+            resolve();
+          }
+        };
+        
+        socketStore.socket?.on('pong', handlePong);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          socketStore.socket?.off('pong', handlePong);
+          resolve();
+        }, 5000);
+      });
+    } catch (error) {
+      console.warn('Failed to measure latency:', error);
+    }
+  },
+
+  updateLatencyHistory: (latency) => {
+    set(state => {
+      const newHistory = [...state.latencyHistory, latency].slice(-10); // Keep last 10 measurements
+      const averageLatency = newHistory.reduce((sum, l) => sum + l, 0) / newHistory.length;
+      
+      return {
+        latencyHistory: newHistory,
+        averageLatency,
+        lastPingTime: Date.now()
+      };
+    });
+  },
+
+  calculateDrift: (serverTime, clientTime, latency = 0) => {
+    // Compensate for network latency
+    const compensatedServerTime = serverTime + (latency / 1000);
+    const drift = clientTime - compensatedServerTime;
+    
+    set(state => {
+      const newDriftHistory = [...state.driftHistory, drift].slice(-20); // Keep last 20 measurements
+      return {
+        driftHistory: newDriftHistory,
+        syncDrift: drift
+      };
+    });
+    
+    return drift;
+  },
+
+  startDriftCorrection: (targetTime, currentTime) => {
+    const { adjustmentRate, minDriftTolerance } = get();
+    const drift = Math.abs(targetTime - currentTime);
+    
+    if (drift < minDriftTolerance) {
+      return false; // Drift too small, no correction needed
+    }
+    
+    set({
+      driftCorrectionActive: true,
+      targetSyncTime: targetTime,
+      lastSyncTime: Date.now()
+    });
+    
+    return true;
+  },
+
+  applyLinearAdjustment: () => {
+    const state = get();
+    if (!state.driftCorrectionActive) return;
+    
+    const { 
+      currentTime, 
+      targetSyncTime, 
+      adjustmentRate, 
+      minDriftTolerance,
+      isPlaying 
+    } = state;
+    
+    const drift = targetSyncTime - currentTime;
+    
+    // Stop correction if drift is within tolerance
+    if (Math.abs(drift) < minDriftTolerance) {
+      set({
+        driftCorrectionActive: false,
+        targetSyncTime: 0
+      });
+      return;
+    }
+    
+    // Calculate adjustment amount
+    const adjustmentDirection = drift > 0 ? 1 : -1;
+    const adjustmentAmount = Math.min(
+      Math.abs(drift), 
+      adjustmentRate
+    ) * adjustmentDirection;
+    
+    // Apply gradual adjustment
+    const newTime = currentTime + adjustmentAmount;
+    
+    set({
+      currentTime: newTime,
+      lastSyncTime: Date.now()
+    });
+    
+    // Log adjustment for debugging
+    if (Math.abs(drift) > 0.5) {
+      console.log(`Drift correction: ${drift.toFixed(3)}s, adjusting by ${adjustmentAmount.toFixed(3)}s`);
+    }
+  },
+
+  smartSync: (serverTime, serverPlaying, latency = null) => {
+    const state = get();
+    const { averageLatency, maxDriftTolerance, isPlaying } = state;
+    
+    // Use provided latency or average latency
+    const effectiveLatency = latency !== null ? latency : averageLatency;
+    
+    // Calculate drift with latency compensation
+    const drift = get().calculateDrift(serverTime, state.currentTime, effectiveLatency);
+    const absDrift = Math.abs(drift);
+    
+    // Immediate sync for large drifts
+    if (absDrift > maxDriftTolerance) {
+      console.log(`Large drift detected (${drift.toFixed(3)}s), performing immediate sync`);
+      set({
+        currentTime: serverTime,
+        isPlaying: serverPlaying,
+        isPaused: !serverPlaying,
+        driftCorrectionActive: false,
+        lastSyncTime: Date.now()
+      });
+      return { type: 'immediate', drift: absDrift };
+    }
+    
+    // Gradual correction for smaller drifts
+    if (absDrift > state.minDriftTolerance) {
+      const correctionStarted = get().startDriftCorrection(serverTime, state.currentTime);
+      if (correctionStarted) {
+        console.log(`Starting gradual drift correction for ${drift.toFixed(3)}s drift`);
+        return { type: 'gradual', drift: absDrift };
+      }
+    }
+    
+    // Update playing state if different
+    if (isPlaying !== serverPlaying) {
+      set({
+        isPlaying: serverPlaying,
+        isPaused: !serverPlaying,
+        lastSyncTime: Date.now()
+      });
+      return { type: 'playstate', drift: absDrift };
+    }
+    
+    return { type: 'none', drift: absDrift };
+  },
+
+  getDriftStatistics: () => {
+    const { driftHistory, latencyHistory, averageLatency } = get();
+    
+    if (driftHistory.length === 0) {
+      return {
+        averageDrift: 0,
+        maxDrift: 0,
+        driftStability: 1,
+        averageLatency,
+        samples: 0
+      };
+    }
+    
+    const averageDrift = driftHistory.reduce((sum, d) => sum + Math.abs(d), 0) / driftHistory.length;
+    const maxDrift = Math.max(...driftHistory.map(Math.abs));
+    
+    // Calculate drift stability (lower is more stable)
+    const driftVariance = driftHistory.reduce((sum, d) => {
+      return sum + Math.pow(Math.abs(d) - averageDrift, 2);
+    }, 0) / driftHistory.length;
+    const driftStability = 1 / (1 + driftVariance);
+    
+    return {
+      averageDrift,
+      maxDrift,
+      driftStability,
+      averageLatency,
+      samples: driftHistory.length
+    };
+  },
+
+  resetDriftCorrection: () => {
+    set({
+      latencyHistory: [],
+      driftHistory: [],
+      driftCorrectionActive: false,
+      targetSyncTime: 0,
+      averageLatency: 0,
+      syncDrift: 0
+    });
   },
 
   // Playlist management

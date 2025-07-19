@@ -5,8 +5,11 @@ import useAuthStore from '../store/authStore';
 import useSquadStore from '../store/squadStore';
 import useVideoStore from '../store/videoStore';
 import useSocketStore from '../store/socketStore';
+import useDriftCorrection from '../hooks/useDriftCorrection';
 import { Card, Avatar } from '../components/ui/index.jsx';
 import Button from '../components/ui/Button';
+import DriftMonitor from '../components/DriftMonitor';
+import DriftSettings from '../components/DriftSettings';
 
 const Squad = () => {
   const { squadId } = useParams();
@@ -23,9 +26,14 @@ const Squad = () => {
     playVideo,
     pauseVideo,
     seekVideo,
-    setVolume 
+    setVolume,
+    smartSync,
+    resetDriftCorrection
   } = useVideoStore();
   const { socket, isConnected } = useSocketStore();
+  
+  // Initialize drift correction
+  const driftCorrection = useDriftCorrection(isConnected && currentVideo, 3000); // Check every 3 seconds
   
   const [showChat, setShowChat] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
@@ -231,8 +239,13 @@ const Squad = () => {
             </div>
           </div>
           
-          {/* Sync Status */}
+          {/* Sync Status and Controls */}
           <div className="flex items-center space-x-4">
+            {/* Drift Settings for Host */}
+            <DriftSettings 
+              isHost={members.find(m => m.id === user?.id)?.isHost || false} 
+            />
+            
             <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
               syncStatus === 'synced' 
                 ? 'bg-green-900 text-green-300' 
@@ -311,6 +324,15 @@ const Squad = () => {
 
                   {/* Video Controls */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                    {/* Drift Monitor - Top Right */}
+                    <div className="absolute top-4 right-4">
+                      <DriftMonitor 
+                        enabled={isConnected && currentVideo} 
+                        compact={true}
+                        className="bg-black bg-opacity-50 text-white rounded-lg px-3 py-2"
+                      />
+                    </div>
+
                     <div className="flex items-center space-x-4">
                       <Button
                         variant="ghost"

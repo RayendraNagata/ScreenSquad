@@ -6,6 +6,40 @@ export const setupSocketHandlers = (io) => {
   io.on('connection', (socket) => {
     console.log(`👤 User connected: ${socket.id}`);
 
+    // Ping/Pong for latency measurement
+    socket.on('ping', (data) => {
+      // Echo back with server timestamp
+      socket.emit('pong', {
+        ...data,
+        serverTimestamp: Date.now()
+      });
+    });
+
+    // Request sync from client
+    socket.on('request-sync', (data) => {
+      const { timestamp, currentTime, isPlaying, squadId } = data;
+      
+      if (squadId && squads.has(squadId)) {
+        const squad = squads.get(squadId);
+        const currentState = squad.playState;
+        
+        // Calculate server's current time based on play state
+        let serverTime = currentState.currentTime;
+        if (currentState.isPlaying) {
+          const timeDiff = (Date.now() - currentState.lastUpdate) / 1000;
+          serverTime += timeDiff;
+        }
+        
+        // Send sync response
+        socket.emit('sync-response', {
+          serverTime,
+          isPlaying: currentState.isPlaying,
+          timestamp,
+          serverTimestamp: Date.now()
+        });
+      }
+    });
+
     // Join a squad
     socket.on('join-squad', async (data) => {
       const { squadId, userId, username } = data;
