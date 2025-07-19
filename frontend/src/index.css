@@ -1,0 +1,114 @@
+/* Video.js custom styles */
+@import url('video.js/dist/video-js.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom ScreenSquad styles */
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-squad-primary-600 hover:bg-squad-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-squad-primary-500 focus:border-transparent;
+  }
+  
+  .reaction-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .reaction-bubble {
+    position: absolute;
+    font-size: 2rem;
+    animation: reaction 2s ease-out forwards;
+    pointer-events: none;
+  }
+  
+  .sync-indicator {
+    @apply absolute top-4 right-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm;
+  }
+  
+  .member-avatar {
+    @apply w-8 h-8 rounded-full border-2 border-white shadow-md;
+  }
+  
+  .squad-card {
+    @apply bg-gradient-to-br from-squad-primary-50 to-squad-secondary-50 border border-squad-primary-200 hover:border-squad-primary-300 transition-all duration-200 hover:shadow-lg;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Video player container */
+.video-container {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Chat message animations */
+.chat-message {
+  @apply animate-slide-up;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply animate-spin rounded-full border-2 border-gray-300 border-t-squad-primary-600;
+}
+
+/* Glass effect */
+.glass {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 222.2% 84% 4.9%;
+    --foreground: 210% 40% 98%;
+  }
+}
