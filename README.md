@@ -348,18 +348,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Framer Motion** for smooth animations
 - **Supabase** for backend-as-a-service
 
-## 📞 Support
-
-- **Issues:** [GitHub Issues](https://github.com/yourusername/screensquad/issues)
-- **Documentation:** [Wiki](https://github.com/yourusername/screensquad/wiki)
-- **Community:** [Discussions](https://github.com/yourusername/screensquad/discussions)
-
 ---
 
 **Made with ❤️ for bringing people together through shared experiences.**
-
-![Built with React](https://img.shields.io/badge/Built%20with-React-61dafb?style=flat-square&logo=react)
-![Powered by Socket.IO](https://img.shields.io/badge/Powered%20by-Socket.IO-010101?style=flat-square&logo=socket.io)
-![Styled with Tailwind](https://img.shields.io/badge/Styled%20with-Tailwind%20CSS-38b2ac?style=flat-square&logo=tailwind-css)
 
 **⭐ Star us on GitHub if you like this project!**
