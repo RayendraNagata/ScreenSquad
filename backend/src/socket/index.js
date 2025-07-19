@@ -15,6 +15,18 @@ export const setupSocketHandlers = (io) => {
       });
     });
 
+    // Triangular method ping/pong
+    socket.on('triangular-ping', (data) => {
+      const t2 = Date.now(); // Server timestamp
+      
+      // Send back t1 (original client time) and t2 (server time)
+      socket.emit('triangular-pong', {
+        id: data.id,
+        t1: data.t1, // Original client timestamp
+        t2: t2       // Server timestamp
+      });
+    });
+
     // Request sync from client
     socket.on('request-sync', (data) => {
       const { timestamp, currentTime, isPlaying, squadId } = data;

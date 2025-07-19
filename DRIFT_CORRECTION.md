@@ -2,14 +2,21 @@
 
 ## Overview
 
-Sistem koreksi drift video ScreenSquad menggunakan pendekatan **linear adjustment** untuk menyinkronkan playback video antar client dengan akurasi tinggi. Sistem ini mengukur perbedaan latency antara client-server dan melakukan penyesuaian posisi video secara bertahap untuk meminimalkan gangguan pada pengalaman menonton.
+Sistem koreksi drift video ScreenSquad menggunakan **triangular method** untuk pengukuran latency yang presisi dan **linear adjustment** untuk menyinkronkan playback video antar client dengan akurasi tinggi. Sistem ini mengimplementasikan algoritma canggih untuk menghitung dan mengkompensasi perbedaan latency network.
 
 ## Fitur Utama
 
-### 🎯 **Pengukuran Latency Real-time**
-- Ping/pong mechanism untuk mengukur round-trip time
-- Rata-rata dari 10 pengukuran terakhir untuk akurasi
-- Update otomatis setiap 3-5 detik
+### 🎯 **Triangular Method Latency Measurement**
+- **Precise timing:** Client kirim timestamp t1 → Server balas dengan t1 + t2 → Client hitung latency = (t3 - t1)/2
+- **Ring buffer:** Simpan 5 pengukuran terakhir untuk stabilitas
+- **Error handling:** Validasi NaN values dan timeout protection
+- **Jitter calculation:** Standard deviation untuk analisis stabilitas network
+
+### 📊 **Advanced Playback Adjustment**
+- **Formula:** `newPosition = currentPosition + (latency * playbackRate)`
+- **Threshold protection:** Maksimal koreksi 500ms
+- **Minimum threshold:** Hanya apply koreksi > 50ms
+- **Return object:** `{ adjustedPosition, latency, correction, applied, error }`
 
 ### 📊 **Smart Drift Detection**
 - Kompensasi latency network pada perhitungan drift
@@ -31,27 +38,54 @@ Sistem koreksi drift video ScreenSquad menggunakan pendekatan **linear adjustmen
 ### 1. **videoStore.js - Core Logic**
 
 ```javascript
-// Fungsi utama koreksi drift
-smartSync(serverTime, serverPlaying, latency)
-calculateDrift(serverTime, clientTime, latency)
-applyLinearAdjustment()
+// Triangular latency measurement
+measureTriangularLatency: async (socketStore) => {
+  const t1 = performance.now();
+  // ... send t1 to server, receive t1 + t2, calculate (t3 - t1)/2
+}
+
+// Playback adjustment with formula
+adjustPlayback: (video) => {
+  const adjustment = latency * playbackRate;
+  const maxCorrection = 0.5; // 500ms threshold
+  // Apply with NaN validation and error handling
+}
+
+// Ring buffer for latency history
+updateLatencyRingBuffer: (latency) => {
+  // Circular buffer for last 5 measurements
+}
 ```
 
-**Algoritma Linear Adjustment:**
+**Triangular Method Implementation:**
 ```javascript
-const drift = targetSyncTime - currentTime;
-const adjustmentDirection = drift > 0 ? 1 : -1;
-const adjustmentAmount = Math.min(
-  Math.abs(drift), 
-  adjustmentRate
-) * adjustmentDirection;
+// Client side calculation
+const t1 = performance.now(); // Send time
+// Server responds with { t1: original, t2: server_time }
+const t3 = performance.now(); // Receive time
+const latency = (t3 - t1) / 2; // Precise latency
 ```
 
-### 2. **useDriftCorrection.js - React Hook**
+### 2. **useTriangularSync.js - React Hook**
 
-- Setup periodic latency measurement (default: 5s interval)
-- Animation frame loop untuk smooth adjustment
-- Event listeners untuk sync responses
+- Triangular latency measurement dengan timeout protection
+- Auto-sync dengan interval yang dapat dikonfigurasi
+- Manual sync dan playback adjustment functions
+- Latency statistics dengan jitter calculation
+
+### 3. **Backend Socket Handlers**
+
+```javascript
+// Triangular ping/pong
+socket.on('triangular-ping', (data) => {
+  const t2 = Date.now();
+  socket.emit('triangular-pong', {
+    id: data.id,
+    t1: data.t1, // Original client time
+    t2: t2       // Server time
+  });
+});
+```
 
 ### 3. **DriftMonitor.jsx - Visual Feedback**
 

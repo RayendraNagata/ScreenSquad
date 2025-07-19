@@ -35,6 +35,13 @@ const useVideoStore = create((set, get) => ({
   adjustmentRate: 0.02, // Linear adjustment rate (2% per frame)
   maxDriftTolerance: 1.0, // Maximum drift before correction (1 second)
   minDriftTolerance: 0.1, // Minimum drift to trigger correction (100ms)
+  
+  // Triangular latency ring buffer (for 5 measurements)
+  latencyRingBuffer: {
+    buffer: new Array(5).fill(0),
+    index: 0,
+    size: 0
+  },
 
   // Actions
   loadVideo: async (videoUrl, metadata = {}) => {
@@ -189,6 +196,145 @@ const useVideoStore = create((set, get) => ({
       });
     } catch (error) {
       console.warn('Failed to measure latency:', error);
+    }
+  },
+
+  // Triangular method latency measurement
+  measureTriangularLatency: async (socketStore) => {
+    const t1 = performance.now(); // Client timestamp
+    const pingId = Date.now();
+    
+    try {
+      return await new Promise((resolve, reject) => {
+        // Send t1 to server
+        socketStore.socket?.emit('triangular-ping', { 
+          id: pingId, 
+          t1: t1 
+        });
+        
+        const handleTriangularPong = (data) => {
+          if (data.id === pingId) {
+            const t3 = performance.now(); // Time when response received
+            
+            // Validate data
+            if (isNaN(data.t1) || isNaN(data.t2) || isNaN(t3)) {
+              console.warn('Invalid triangular latency data - NaN values detected');
+              socketStore.socket?.off('triangular-pong', handleTriangularPong);
+              reject(new Error('Invalid latency data'));
+              return;
+            }
+            
+            // Calculate latency using triangular method: (t3 - t1) / 2
+            const latency = (t3 - data.t1) / 2;
+            
+            // Update ring buffer
+            get().updateLatencyRingBuffer(latency);
+            
+            socketStore.socket?.off('triangular-pong', handleTriangularPong);
+            resolve({
+              latency: latency,
+              serverTime: data.t2,
+              roundTripTime: t3 - data.t1
+            });
+          }
+        };
+        
+        socketStore.socket?.on('triangular-pong', handleTriangularPong);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          socketStore.socket?.off('triangular-pong', handleTriangularPong);
+          reject(new Error('Triangular latency measurement timeout'));
+        }, 5000);
+      });
+    } catch (error) {
+      console.warn('Failed to measure triangular latency:', error);
+      throw error;
+    }
+  },
+
+  // Update latency ring buffer (keeps last 5 measurements)
+  updateLatencyRingBuffer: (latency) => {
+    set(state => {
+      const buffer = state.latencyRingBuffer;
+      
+      // Add to ring buffer
+      buffer.buffer[buffer.index] = latency;
+      buffer.index = (buffer.index + 1) % 5;
+      buffer.size = Math.min(buffer.size + 1, 5);
+      
+      // Calculate average from ring buffer
+      const validMeasurements = buffer.buffer.slice(0, buffer.size);
+      const averageLatency = validMeasurements.reduce((sum, l) => sum + l, 0) / buffer.size;
+      
+      return {
+        latencyRingBuffer: { ...buffer },
+        averageLatency,
+        lastPingTime: Date.now()
+      };
+    });
+  },
+
+  // Main synchronization function with playback adjustment
+  adjustPlayback: (video) => {
+    const state = get();
+    
+    try {
+      // Validate video element
+      if (!video || typeof video.currentTime !== 'number' || isNaN(video.currentTime)) {
+        throw new Error('Invalid video element or currentTime is NaN');
+      }
+      
+      const currentPosition = video.currentTime;
+      const playbackRate = video.playbackRate || 1;
+      const latency = state.averageLatency / 1000; // Convert to seconds
+      
+      // Validate values
+      if (isNaN(currentPosition) || isNaN(playbackRate) || isNaN(latency)) {
+        throw new Error('NaN values detected in playback adjustment');
+      }
+      
+      // Calculate adjustment using formula: newPosition = currentPosition + (latency * playbackRate)
+      let adjustment = latency * playbackRate;
+      
+      // Apply 500ms maximum correction threshold
+      const maxCorrectionSeconds = 0.5;
+      adjustment = Math.min(Math.abs(adjustment), maxCorrectionSeconds) * Math.sign(adjustment);
+      
+      const adjustedPosition = currentPosition + adjustment;
+      
+      // Validate adjusted position
+      if (isNaN(adjustedPosition) || adjustedPosition < 0) {
+        throw new Error('Invalid adjusted position calculated');
+      }
+      
+      // Apply adjustment if significant enough (> 50ms)
+      if (Math.abs(adjustment) > 0.05) {
+        video.currentTime = adjustedPosition;
+        
+        // Update store
+        set({
+          currentTime: adjustedPosition,
+          lastSyncTime: Date.now()
+        });
+      }
+      
+      return {
+        adjustedPosition: adjustedPosition,
+        latency: latency * 1000, // Return in milliseconds
+        correction: adjustment * 1000,
+        applied: Math.abs(adjustment) > 0.05
+      };
+      
+    } catch (error) {
+      console.error('Playback adjustment error:', error);
+      return {
+        adjustedPosition: video?.currentTime || 0,
+        latency: 0,
+        correction: 0,
+        applied: false,
+        error: error.message
+      };
     }
   },
 
