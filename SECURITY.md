@@ -16,7 +16,6 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **DO NOT** create a public GitHub issue for security vulnerabilities.
 
-Instead, please email us at: **security@screensquad.app** (if available) or contact the maintainers directly.
 
 ### 📋 What to Include
 
