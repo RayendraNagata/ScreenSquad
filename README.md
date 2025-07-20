@@ -48,7 +48,11 @@ ScreenSquad is a real-time video synchronization platform that allows you to cre
 1. **Clone the repository**
    ```bash
    git clone https://github.com/RayendraNagata/ScreenSquad.git
+<<<<<<< HEAD
    cd ScreenSquad
+=======
+   cd screensquad
+>>>>>>> f73019e3cd6cbbf4a300cd5dcb9d0b8759148ac9
    ```
 
 2. **Install dependencies**
