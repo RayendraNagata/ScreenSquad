@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
-import useSquadStore from '../store/squadStore';
+import useSquadStore from '../store/squadStore_fixed';
 import { Card, Modal, LoadingSpinner } from '../components/ui/index.jsx';
 import Button from '../components/ui/Button';
 
@@ -15,14 +15,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchSquads();
-  }, [fetchSquads]);
+  }, []); // Remove fetchSquads from dependencies to prevent infinite loops
 
   const handleCreateSquad = async () => {
     if (!squadName.trim()) return;
     
-    await createSquad(squadName);
-    setSquadName('');
-    setShowCreateModal(false);
+    console.log('Creating squad with name:', squadName);
+    const result = await createSquad(squadName);
+    console.log('Create squad result:', result);
+    
+    if (result.success) {
+      setSquadName('');
+      setShowCreateModal(false);
+      // No need to call fetchSquads again, createSquad already updates the state
+    } else {
+      console.error('Failed to create squad:', result.error);
+      // Could show an error message to user here
+    }
   };
 
   if (isLoading) {
@@ -54,17 +63,31 @@ const Dashboard = () => {
                 Ready to watch together with your squads?
               </p>
             </div>
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                onClick={() => setShowCreateModal(true)}
-                className="bg-squad-primary-600 hover:bg-squad-primary-700 text-white px-6 py-3 text-lg"
+            <div className="flex space-x-4">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                + Create New Squad
-              </Button>
-            </motion.div>
+                <Button 
+                  onClick={() => navigate('/my-squads')}
+                  variant="outline"
+                  className="px-6 py-3 text-lg border-squad-primary-600 text-squad-primary-600 hover:bg-squad-primary-50"
+                >
+                  📋 View All Squads
+                </Button>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="bg-squad-primary-600 hover:bg-squad-primary-700 text-white px-6 py-3 text-lg"
+                >
+                  + Create New Squad
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
 

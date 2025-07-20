@@ -7,11 +7,20 @@ import useSocketStore from './store/socketStore';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Squad from './pages/Squad';
+import SquadSimple from './pages/SquadSimple';
+import SquadTest from './pages/SquadTest';
+import MySquads from './pages/MySquads';
 import Profile from './pages/Profile';
+import Diagnostic from './pages/Diagnostic';
+import SquadDebug from './pages/SquadDebug';
+import AdminUsers from './pages/admin/AdminUsers';
 
 // Components
 import Navbar from './components/Navbar';
+import ErrorBoundary from './components/ErrorBoundary';
+import PermissionGate from './components/PermissionGate';
 import { LoadingSpinner } from './components/ui/index.jsx';
+import { PERMISSIONS } from './utils/roleUtils';
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuthStore();
@@ -43,11 +52,12 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        {isAuthenticated && <Navbar />}
-        
-        <Routes>
+    <ErrorBoundary>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          {isAuthenticated && <Navbar />}
+          
+          <Routes>
           {/* Public routes */}
           <Route 
             path="/" 
@@ -65,9 +75,16 @@ function App() {
           />
           
           <Route 
+            path="/my-squads" 
+            element={
+              isAuthenticated ? <MySquads /> : <Navigate to="/" replace />
+            } 
+          />
+          
+          <Route 
             path="/squad/:squadId" 
             element={
-              isAuthenticated ? <Squad /> : <Navigate to="/" replace />
+              isAuthenticated ? <SquadSimple /> : <Navigate to="/" replace />
             } 
           />
           
@@ -78,11 +95,51 @@ function App() {
             } 
           />
 
+          {/* Debug route - Admin only */}
+          <Route 
+            path="/squad-test" 
+            element={
+              isAuthenticated ? (
+                <PermissionGate permission={PERMISSIONS.ACCESS_DEBUG}>
+                  <SquadTest />
+                </PermissionGate>
+              ) : <Navigate to="/" replace />
+            } 
+          />
+
           {/* Join squad with invite */}
           <Route 
             path="/join/:squadId" 
             element={
+              isAuthenticated ? <SquadSimple /> : <Navigate to="/" replace />
+            } 
+          />
+
+          {/* Diagnostic page */}
+          <Route 
+            path="/diagnostic" 
+            element={<Diagnostic />} 
+          />
+
+          {/* Squad debug page */}
+          <Route 
+            path="/squad-debug/:squadId" 
+            element={<SquadDebug />} 
+          />
+
+          {/* Full Squad page for testing */}
+          <Route 
+            path="/squad-full/:squadId" 
+            element={
               isAuthenticated ? <Squad /> : <Navigate to="/" replace />
+            } 
+          />
+
+          {/* Admin routes */}
+          <Route 
+            path="/admin/users" 
+            element={
+              isAuthenticated ? <AdminUsers /> : <Navigate to="/" replace />
             } 
           />
           
@@ -107,6 +164,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </ErrorBoundary>
   );
 }
 

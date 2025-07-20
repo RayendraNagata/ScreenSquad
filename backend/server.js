@@ -20,6 +20,9 @@ const io = new Server(server, {
   }
 });
 
+// Import rate limiting
+import { generalPostRateLimit } from './src/middleware/rateLimit.js';
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -27,6 +30,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Apply general rate limiting untuk semua POST requests
+app.use('/api', generalPostRateLimit);
 
 // Routes
 app.use('/api/auth', authRoutes);

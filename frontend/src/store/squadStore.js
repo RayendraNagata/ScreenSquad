@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { getAuthHeaders } from '../utils/demoAuth';
+import useAuthStore from './authStore';
 
 const useSquadStore = create((set, get) => ({
   // State
@@ -75,12 +77,68 @@ const useSquadStore = create((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // Simulate API delay
+      console.log('Fetching squad by ID:', squadId);
+      
+      // Try API first if user has proper token
+      const authStore = useAuthStore.getState ? useAuthStore.getState() : useAuthStore;
+      const { token, user } = authStore;
+      
+      if (token && !token.startsWith('demo-token-')) {
+        console.log('Using backend API with JWT token');
+        try {
+          const headers = getAuthHeaders(token);
+          const response = await fetch(`http://localhost:3001/api/squads/${squadId}`, {
+            method: 'GET',
+            headers: headers
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Backend API response:', data);
+            
+            set({
+              currentSquad: data.squad,
+              isLoading: false,
+            });
+            return { success: true, squad: data.squad };
+          } else {
+            console.log('Backend API failed, falling back to demo data');
+          }
+        } catch (apiError) {
+          console.log('Backend API error, falling back to demo data:', apiError);
+        }
+      }
+      
+      // Fallback to demo data
+      console.log('Using demo/fallback data');
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const { demoSquads, squads } = get();
-      const allSquads = [...demoSquads, ...squads];
+      
+      // Ensure demoSquads are included in search
+      const allSquads = [
+        ...demoSquads,
+        ...squads,
+        // Fallback demo squads if not loaded
+        {
+          id: '1',
+          name: 'Movie Night Squad',
+          members: [
+            { id: '1', username: 'You', avatar: 'avatar1.jpg' },
+            { id: '2', username: 'Sarah', avatar: 'avatar2.jpg' },
+            { id: '3', username: 'Mike', avatar: 'avatar3.jpg' }
+          ],
+          isActive: true,
+          lastActivity: 'Watched "Inception" together',
+          lastSeen: 'Active now',
+          createdAt: new Date().toISOString()
+        }
+      ];
+      
+      console.log('All available squads:', allSquads.map(s => ({ id: s.id, name: s.name })));
+      
       const squad = allSquads.find(s => s.id === squadId);
+      console.log('Found squad:', squad);
       
       if (squad) {
         set({

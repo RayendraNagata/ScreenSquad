@@ -1,14 +1,15 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { authRateLimit } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
 // Temporary in-memory storage (replace with Supabase)
 const users = new Map();
 
-// Register
-router.post('/register', async (req, res) => {
+// Register - dengan rate limiting
+router.post('/register', authRateLimit, async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -72,8 +73,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
-router.post('/login', async (req, res) => {
+// Login - dengan rate limiting
+router.post('/login', authRateLimit, async (req, res) => {
   try {
     const { email, password } = req.body;
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import VideoSyncWorkerManager from '../utils/VideoSyncWorkerManager';
 
 const useVideoStore = create((set, get) => ({
   // State
@@ -25,6 +26,10 @@ const useVideoStore = create((set, get) => ({
   syncDrift: 0,
   isHost: false,
 
+  // WebWorker for performance optimization
+  syncWorkerManager: null,
+  workerInitialized: false,
+
   // Drift correction data
   latencyHistory: [], // Array to store latency measurements
   driftHistory: [], // Array to store drift measurements
@@ -44,6 +49,84 @@ const useVideoStore = create((set, get) => ({
   },
 
   // Actions
+  // Initialize WebWorker for performance optimization
+  initializeWorker: async (config = {}) => {
+    try {
+      if (get().syncWorkerManager) {
+        return true; // Already initialized
+      }
+
+      const workerManager = new VideoSyncWorkerManager();
+      await workerManager.init({
+        maxCorrection: 500,
+        syncThreshold: 100,
+        latencyWeight: 0.7,
+        driftWeight: 0.3,
+        ...config
+      });
+
+      // Setup event listeners for worker
+      workerManager.on('LATENCY_CALCULATED', (data) => {
+        const state = get();
+        set({
+          averageLatency: data.stats.average,
+          latencyHistory: [...state.latencyHistory, {
+            timestamp: Date.now(),
+            latency: data.networkLatency,
+            roundTripTime: data.roundTripTime
+          }].slice(-10) // Keep last 10 measurements
+        });
+      });
+
+      workerManager.on('DRIFT_CALCULATED', (data) => {
+        const state = get();
+        set({
+          syncDrift: data.adjustedDrift,
+          driftHistory: [...state.driftHistory, {
+            timestamp: Date.now(),
+            drift: data.adjustedDrift,
+            rawDrift: data.rawDrift
+          }].slice(-10) // Keep last 10 measurements
+        });
+      });
+
+      workerManager.on('ADJUSTMENT_CALCULATED', (data) => {
+        set({
+          targetSyncTime: data.newPosition,
+          adjustmentRate: Math.abs(data.correction) > 0.1 ? 0.05 : 0.02
+        });
+      });
+
+      workerManager.on('error', (error) => {
+        console.error('VideoSync Worker Error:', error);
+        set({ error: error.message });
+      });
+
+      set({
+        syncWorkerManager: workerManager,
+        workerInitialized: true
+      });
+
+      console.log('VideoSync Worker initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize VideoSync Worker:', error);
+      set({ error: `Worker initialization failed: ${error.message}` });
+      return false;
+    }
+  },
+
+  // Destroy WebWorker
+  destroyWorker: () => {
+    const workerManager = get().syncWorkerManager;
+    if (workerManager) {
+      workerManager.destroy();
+      set({
+        syncWorkerManager: null,
+        workerInitialized: false
+      });
+    }
+  },
   loadVideo: async (videoUrl, metadata = {}) => {
     set({ isLoading: true, error: null });
 
@@ -199,20 +282,20 @@ const useVideoStore = create((set, get) => ({
     }
   },
 
-  // Triangular method latency measurement
+  // Triangular method latency measurement dengan WebWorker
   measureTriangularLatency: async (socketStore) => {
     const t1 = performance.now(); // Client timestamp
     const pingId = Date.now();
     
     try {
-      return await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         // Send t1 to server
         socketStore.socket?.emit('triangular-ping', { 
           id: pingId, 
           t1: t1 
         });
         
-        const handleTriangularPong = (data) => {
+        const handleTriangularPong = async (data) => {
           if (data.id === pingId) {
             const t3 = performance.now(); // Time when response received
             
@@ -224,18 +307,49 @@ const useVideoStore = create((set, get) => ({
               return;
             }
             
-            // Calculate latency using triangular method: (t3 - t1) / 2
-            const latency = (t3 - data.t1) / 2;
-            
-            // Update ring buffer
-            get().updateLatencyRingBuffer(latency);
-            
             socketStore.socket?.off('triangular-pong', handleTriangularPong);
-            resolve({
-              latency: latency,
-              serverTime: data.t2,
-              roundTripTime: t3 - data.t1
-            });
+            
+            // Use WebWorker if available, fallback to main thread
+            const workerManager = get().syncWorkerManager;
+            if (workerManager && workerManager.isReady()) {
+              try {
+                // Calculate using WebWorker
+                const workerResult = await workerManager.calculateLatency(
+                  data.t1, // pingTime
+                  data.t2, // serverTime
+                  t3       // pongTime
+                );
+                
+                resolve({
+                  latency: workerResult.networkLatency,
+                  serverTime: data.t2,
+                  roundTripTime: workerResult.roundTripTime,
+                  usingWorker: true,
+                  stats: workerResult.stats
+                });
+              } catch (workerError) {
+                console.warn('WebWorker calculation failed, using fallback:', workerError);
+                // Fallback to main thread calculation
+                const latency = (t3 - data.t1) / 2;
+                get().updateLatencyRingBuffer(latency);
+                resolve({
+                  latency: latency,
+                  serverTime: data.t2,
+                  roundTripTime: t3 - data.t1,
+                  usingWorker: false
+                });
+              }
+            } else {
+              // Fallback to main thread calculation
+              const latency = (t3 - data.t1) / 2;
+              get().updateLatencyRingBuffer(latency);
+              resolve({
+                latency: latency,
+                serverTime: data.t2,
+                roundTripTime: t3 - data.t1,
+                usingWorker: false
+              });
+            }
           }
         };
         
@@ -247,6 +361,8 @@ const useVideoStore = create((set, get) => ({
           reject(new Error('Triangular latency measurement timeout'));
         }, 5000);
       });
+      
+      return result;
     } catch (error) {
       console.warn('Failed to measure triangular latency:', error);
       throw error;
@@ -614,6 +730,158 @@ const useVideoStore = create((set, get) => ({
       isPlaying: false,
       isPaused: true
     });
+  },
+
+  // WebWorker-enhanced methods
+  calculateDriftWithWorker: async (expectedTime, actualTime, playbackRate = 1) => {
+    const workerManager = get().syncWorkerManager;
+    
+    if (workerManager && workerManager.isReady()) {
+      try {
+        const result = await workerManager.calculateDrift(expectedTime, actualTime, playbackRate);
+        return result;
+      } catch (error) {
+        console.warn('WebWorker drift calculation failed, using fallback:', error);
+        // Fallback to main thread
+        return get().calculateDrift(expectedTime, actualTime, playbackRate);
+      }
+    } else {
+      // Fallback to main thread
+      return get().calculateDrift(expectedTime, actualTime, playbackRate);
+    }
+  },
+
+  calculateAdjustmentWithWorker: async (currentTime, targetTime, latency, playbackRate = 1) => {
+    const workerManager = get().syncWorkerManager;
+    
+    if (workerManager && workerManager.isReady()) {
+      try {
+        const result = await workerManager.calculateAdjustment(currentTime, targetTime, latency, playbackRate);
+        return result;
+      } catch (error) {
+        console.warn('WebWorker adjustment calculation failed, using fallback:', error);
+        // Fallback to main thread calculation
+        return {
+          currentTime,
+          targetTime,
+          timeDiff: targetTime - currentTime,
+          correction: (targetTime - currentTime) + (latency * playbackRate),
+          newPosition: Math.max(0, currentTime + (targetTime - currentTime) + (latency * playbackRate)),
+          adjustmentMethod: Math.abs(targetTime - currentTime) > 0.5 ? 'seek' : 'rate_adjust',
+          confidence: 0.5,
+          usingWorker: false
+        };
+      }
+    } else {
+      // Fallback calculation
+      const timeDiff = targetTime - currentTime;
+      const correction = timeDiff + (latency * playbackRate);
+      return {
+        currentTime,
+        targetTime,
+        timeDiff,
+        correction,
+        newPosition: Math.max(0, currentTime + correction),
+        adjustmentMethod: Math.abs(correction) > 0.5 ? 'seek' : 'rate_adjust',
+        confidence: 0.5,
+        usingWorker: false
+      };
+    }
+  },
+
+  performFullSyncWithWorker: async (syncData) => {
+    const workerManager = get().syncWorkerManager;
+    
+    if (workerManager && workerManager.isReady()) {
+      try {
+        const result = await workerManager.performFullSync(syncData);
+        
+        // Update store with results
+        if (result.latency) {
+          set(state => ({
+            averageLatency: result.latency.stats?.average || state.averageLatency,
+            latencyHistory: [...state.latencyHistory, {
+              timestamp: Date.now(),
+              latency: result.latency.networkLatency,
+              roundTripTime: result.latency.roundTripTime
+            }].slice(-10)
+          }));
+        }
+        
+        if (result.drift) {
+          set(state => ({
+            syncDrift: result.drift.adjustedDrift,
+            driftHistory: [...state.driftHistory, {
+              timestamp: Date.now(),
+              drift: result.drift.adjustedDrift,
+              rawDrift: result.drift.rawDrift
+            }].slice(-10)
+          }));
+        }
+        
+        if (result.adjustment) {
+          set({
+            targetSyncTime: result.adjustment.newPosition,
+            adjustmentRate: Math.abs(result.adjustment.correction) > 0.1 ? 0.05 : 0.02
+          });
+        }
+        
+        return {
+          ...result,
+          usingWorker: true
+        };
+      } catch (error) {
+        console.warn('WebWorker full sync failed, using fallback:', error);
+        // Fallback to sequential calculations
+        return await get().performFallbackSync(syncData);
+      }
+    } else {
+      // Fallback to sequential calculations
+      return await get().performFallbackSync(syncData);
+    }
+  },
+
+  performFallbackSync: async (syncData) => {
+    const { currentTime, targetTime, playbackRate = 1 } = syncData;
+    
+    // Sequential fallback calculations
+    const drift = get().calculateDrift(targetTime, currentTime, playbackRate || 0);
+    const adjustment = {
+      currentTime,
+      targetTime,
+      timeDiff: targetTime - currentTime,
+      correction: targetTime - currentTime,
+      newPosition: Math.max(0, targetTime),
+      adjustmentMethod: Math.abs(targetTime - currentTime) > 0.5 ? 'seek' : 'rate_adjust',
+      confidence: 0.3,
+      usingWorker: false
+    };
+    
+    return {
+      drift: { adjustedDrift: drift, rawDrift: drift },
+      adjustment,
+      timestamp: Date.now(),
+      usingWorker: false
+    };
+  },
+
+  getWorkerStats: async () => {
+    const workerManager = get().syncWorkerManager;
+    
+    if (workerManager && workerManager.isReady()) {
+      try {
+        const stats = await workerManager.getStats();
+        return {
+          ...stats,
+          available: true
+        };
+      } catch (error) {
+        console.warn('Failed to get worker stats:', error);
+        return { available: false, error: error.message };
+      }
+    }
+    
+    return { available: false, reason: 'Worker not initialized' };
   }
 }));
 

@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { createDemoToken, mockLogin } from '../utils/demoAuth';
+import { determineUserRole } from '../utils/roleUtils';
 
 const useAuthStore = create(
   persist(
@@ -16,59 +18,24 @@ const useAuthStore = create(
         set({ isLoading: true, error: null });
 
         try {
-          // Demo login with predefined accounts
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-          
-          // Demo accounts for easy testing
-          const demoAccounts = {
-            'demo@screensquad.com': {
-              id: '1',
-              username: 'ScreenSquad Demo',
-              email: 'demo@screensquad.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo',
-            },
-            'john@example.com': {
-              id: '2', 
-              username: 'John Doe',
-              email: 'john@example.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john',
-            },
-            'sarah@example.com': {
-              id: '3',
-              username: 'Sarah Wilson', 
-              email: 'sarah@example.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-            }
+          // Use the mock login function that creates proper JWT-like tokens
+          const { user: demoUser, token: jwtToken } = await mockLogin(email, password);
+
+          // Determine user role
+          const userWithRole = {
+            ...demoUser,
+            role: determineUserRole(demoUser)
           };
 
-          let demoUser;
-          
-          // Check if it's a predefined demo account
-          if (demoAccounts[email]) {
-            demoUser = {
-              ...demoAccounts[email],
-              createdAt: new Date().toISOString()
-            };
-          } else {
-            // Create new demo user for any email
-            demoUser = {
-              id: Date.now().toString(),
-              username: email.split('@')[0] || 'DemoUser',
-              email: email,
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + email,
-              createdAt: new Date().toISOString()
-            };
-          }
-
           set({
-            user: demoUser,
-            token: 'demo-token-' + Date.now(),
+            user: userWithRole,
+            token: jwtToken,
             isAuthenticated: true,
             isLoading: false,
             error: null,
           });
 
-          return { success: true, user: demoUser };
+          return { success: true, user: userWithRole };
         } catch (error) {
           set({
             isLoading: false,
@@ -82,7 +49,7 @@ const useAuthStore = create(
         set({ isLoading: true, error: null });
 
         try {
-          // Demo registration - remove this when backend is ready
+          // Demo registration - create new user
           await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
           
           const demoUser = {
@@ -93,15 +60,23 @@ const useAuthStore = create(
             createdAt: new Date().toISOString()
           };
 
+          // Add role to new user
+          const userWithRole = {
+            ...demoUser,
+            role: determineUserRole(demoUser)
+          };
+
+          const jwtToken = createDemoToken(userWithRole);
+
           set({
-            user: demoUser,
-            token: 'demo-token-' + Date.now(),
+            user: userWithRole,
+            token: jwtToken,
             isAuthenticated: true,
             isLoading: false,
             error: null,
           });
 
-          return { success: true, user: demoUser };
+          return { success: true, user: userWithRole };
         } catch (error) {
           set({
             isLoading: false,

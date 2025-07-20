@@ -287,9 +287,9 @@ const Landing = () => {
                   <h4 className="text-sm font-semibold text-blue-800 mb-3">🎮 Demo Accounts (Any password works):</h4>
                   <div className="space-y-2">
                     {[
-                      { email: 'demo@screensquad.com', name: 'ScreenSquad Demo' },
-                      { email: 'john@example.com', name: 'John Doe' },
-                      { email: 'sarah@example.com', name: 'Sarah Wilson' }
+                      { email: 'demo@screensquad.com', name: 'ScreenSquad Demo', role: '👑 Admin' },
+                      { email: 'sarah@example.com', name: 'Sarah Wilson', role: '🛡️ Moderator' },
+                      { email: 'john@example.com', name: 'John Doe', role: '👤 User' }
                     ].map((account) => (
                       <button
                         key={account.email}
@@ -300,10 +300,15 @@ const Landing = () => {
                             password: 'demo123'
                           });
                         }}
-                        className="w-full text-left p-2 text-xs bg-white border border-blue-200 rounded hover:bg-blue-50 transition-colors duration-200"
+                        className="w-full text-left p-3 bg-white rounded border border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
                       >
-                        <div className="font-medium text-blue-800">{account.name}</div>
-                        <div className="text-blue-600">{account.email}</div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-blue-800">{account.name}</div>
+                            <div className="text-sm text-blue-600">{account.email}</div>
+                          </div>
+                          <div className="text-sm text-blue-700">{account.role}</div>
+                        </div>
                       </button>
                     ))}
                   </div>

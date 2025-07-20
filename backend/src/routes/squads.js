@@ -1,5 +1,10 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
+import { 
+  createSquadRateLimit, 
+  joinSquadRateLimit, 
+  inviteRateLimit 
+} from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
@@ -7,8 +12,64 @@ const router = express.Router();
 const squads = new Map();
 const squadMembers = new Map(); // squadId -> Set of userIds
 
-// Create a new squad
-router.post('/create', authenticateToken, (req, res) => {
+// Initialize demo data
+function initializeDemoData() {
+  // Demo squad 1
+  const squad1 = {
+    id: '1',
+    name: 'Movie Night Squad',
+    description: 'Weekly movie nights with friends',
+    isPrivate: false,
+    createdBy: '1',
+    createdAt: new Date().toISOString(),
+    avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=1',
+    settings: {
+      allowGuestJoin: true,
+      autoPlay: true,
+      syncTolerance: 500,
+      maxMembers: 50
+    },
+    stats: {
+      totalSessions: 12,
+      totalWatchTime: 86400,
+      memberCount: 3
+    }
+  };
+
+  const squad2 = {
+    id: '2',
+    name: 'Horror Fans',
+    description: 'For those who love scary movies',
+    isPrivate: false,
+    createdBy: '2',
+    createdAt: new Date().toISOString(),
+    avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=2',
+    settings: {
+      allowGuestJoin: true,
+      autoPlay: true,
+      syncTolerance: 500,
+      maxMembers: 50
+    },
+    stats: {
+      totalSessions: 8,
+      totalWatchTime: 43200,
+      memberCount: 4
+    }
+  };
+
+  squads.set('1', squad1);
+  squads.set('2', squad2);
+
+  // Add demo members
+  squadMembers.set('1', new Set(['1', '2', '3']));
+  squadMembers.set('2', new Set(['1', '2', '3', '4']));
+}
+
+// Initialize demo data when module loads
+initializeDemoData();
+
+// Create a new squad - dengan rate limiting
+router.post('/create', createSquadRateLimit, authenticateToken, (req, res) => {
   try {
     const { name, description, isPrivate = false } = req.body;
     const userId = req.user.userId;
@@ -119,8 +180,8 @@ router.get('/:squadId', authenticateToken, (req, res) => {
   }
 });
 
-// Join a squad
-router.post('/:squadId/join', authenticateToken, (req, res) => {
+// Join a squad - dengan rate limiting
+router.post('/:squadId/join', joinSquadRateLimit, authenticateToken, (req, res) => {
   try {
     const { squadId } = req.params;
     const userId = req.user.userId;
@@ -248,8 +309,8 @@ router.put('/:squadId/settings', authenticateToken, (req, res) => {
   }
 });
 
-// Generate invite link
-router.post('/:squadId/invite', authenticateToken, (req, res) => {
+// Generate invite link - dengan rate limiting
+router.post('/:squadId/invite', inviteRateLimit, authenticateToken, (req, res) => {
   try {
     const { squadId } = req.params;
     const userId = req.user.userId;

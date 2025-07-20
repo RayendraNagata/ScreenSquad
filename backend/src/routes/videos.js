@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { authenticateToken } from '../middleware/auth.js';
+import { videoRateLimit } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
@@ -35,8 +36,8 @@ const upload = multer({
 // Temporary storage for video metadata
 const videos = new Map();
 
-// Upload video file
-router.post('/upload', authenticateToken, upload.single('video'), (req, res) => {
+// Upload video file - dengan rate limiting
+router.post('/upload', videoRateLimit, authenticateToken, upload.single('video'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No video file provided' });
@@ -75,8 +76,8 @@ router.post('/upload', authenticateToken, upload.single('video'), (req, res) => 
   }
 });
 
-// Add video from URL (Google Drive, Dropbox, etc.)
-router.post('/add-url', authenticateToken, (req, res) => {
+// Add video from URL (Google Drive, Dropbox, etc.) - dengan rate limiting
+router.post('/add-url', videoRateLimit, authenticateToken, (req, res) => {
   try {
     const { url, title, description } = req.body;
     const userId = req.user.userId;

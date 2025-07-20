@@ -1,355 +1,246 @@
-# 🎬 ScreenSquad - Group Watch Party Platform
+# 🎬 ScreenSquad
 
-> **Watch together, react together, create memories together.**
+**Watch videos together in perfect sync with your friends!**
 
-ScreenSquad is a modern real-time synchronized viewing platform where groups can watch videos together with perfect sync, interactive reactions, and social features. Built with cutting-edge web technologies for seamless shared experiences.
+ScreenSquad is a real-time video synchronization platform that allows you to create watch parties with friends. Whether it's YouTube videos, Google Drive content, or screen sharing, everyone stays perfectly in sync.
 
-![ScreenSquad Banner](https://via.placeholder.com/1200x400/2563eb/ffffff?text=ScreenSquad+-+Group+Watch+Party+Platform)
+![ScreenSquad Demo](https://via.placeholder.com/800x400/1f2937/ffffff?text=ScreenSquad+Demo)
 
 ## ✨ Features
 
-### 🎭 **Squad Management**
-- **Create & Join Squads** - Form groups with friends and family
-- **Real-time Member Presence** - See who's online and active
-- **Smart Invitations** - Share squads via links, QR codes, or social media
-- **Role-based Permissions** - Host controls with member management
+### 🎥 **Multi-Platform Video Support**
+- **YouTube Integration**: Seamless YouTube video embedding and playback
+- **Google Drive Videos**: Direct support for Google Drive video files
+- **Screen Sharing**: Real-time screen sharing with HD quality
+- **Direct Video Files**: Support for MP4, WebM, and other video formats
 
-### 🎬 **Synchronized Video Playback**
-- **Frame-Perfect Sync** - Sub-500ms synchronization across all viewers
-- **Multiple Video Sources** - Support for MP4, Google Drive, Dropbox links
-- **Smart Drift Correction** - Automatic synchronization adjustments
-- **Universal Player Controls** - Play, pause, seek synchronized for everyone
+### 👥 **Squad Management**
+- **Create Squads**: Set up private watch parties with custom names
+- **Role-Based Access**: Host controls vs. member view-only permissions
+- **Real-time Sync**: Automatic synchronization across all viewers
+- **Member Management**: See who's online and their roles
 
-### 🎮 **Interactive Features**
-- **Live Reactions** - Real-time emoji reactions that appear on video
-- **Group Chat** - Timestamp-linked messaging with video position
-- **Screen Sharing** - Browser-based screen sharing capabilities
-- **Voice Communication** - Built-in voice chat integration
-- **Reaction Battles** - Compete with friends using emoji reactions
+### 💬 **Interactive Features**
+- **Live Chat**: Real-time messaging during video sessions
+- **Reaction System**: Quick emoji reactions to moments
+- **Activity Feed**: Track squad activity and chat history
 
-### 📱 **Modern UI/UX**
-- **Responsive Design** - Works on desktop, tablet, and mobile
-- **Dark Mode Video Player** - Cinematic viewing experience
-- **Smooth Animations** - Powered by Framer Motion
-- **Real-time Notifications** - Stay updated with squad activities
-- **Progressive Web App** - Install as native app experience
+### 🎛️ **Host Controls**
+- **Video Library Management**: Add, remove, and organize videos
+- **Playback Control**: Play, pause, and seek for all members
+- **Screen Share**: Share your screen with the entire squad
+- **Sync Management**: Ensure everyone stays perfectly synchronized
 
-## 🛠️ Tech Stack
+### 🔒 **User Experience**
+- **Modern UI**: Clean, dark theme optimized for video watching
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Authentication**: Secure user accounts and squad access
+- **Real-time Updates**: Instant updates without page refreshes
 
-### **Frontend**
-- **React 18** + **Vite** - Fast development and modern React features
-- **Tailwind CSS** - Utility-first styling with custom design system
-- **Framer Motion** - Smooth animations and transitions
-- **Zustand** - Lightweight state management
-- **Socket.IO Client** - Real-time communication
-- **React Router** - Client-side routing
-
-### **Backend**
-- **Node.js** + **Express** - RESTful API server
-- **Socket.IO** - Real-time WebSocket communication
-- **Supabase** - PostgreSQL database with real-time features
-- **JWT Authentication** - Secure user sessions
-- **CORS** - Cross-origin resource sharing
-
-### **Real-time & Communication**
-- **WebRTC** - Peer-to-peer screen sharing
-- **Socket.IO** - Bidirectional event-based communication
-- **WebSocket** - Low-latency real-time updates
-- **Video.js** - Advanced video player capabilities
-
-## 🚀 Quick Start
+## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** 18+ 
-- **npm** or **yarn**
-- Modern web browser with WebRTC support
+- Node.js 18+ and npm
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/screensquad.git
-   cd screensquad
+   git clone https://github.com/RayendraNagata/ScreenSquad.git
+   cd ScreenSquad
    ```
 
 2. **Install dependencies**
    ```bash
-   # Install frontend dependencies
-   cd frontend
-   npm install
-   
    # Install backend dependencies
-   cd ../backend
+   cd backend
+   npm install
+   
+   # Install frontend dependencies
+   cd ../frontend
    npm install
    ```
 
-3. **Environment Setup**
-   ```bash
-   # Backend environment
-   cd backend
-   cp .env.example .env
-   # Edit .env with your configurations
+3. **Start the development servers**
    
-   # Frontend environment (optional)
-   cd ../frontend
-   cp .env.example .env
+   **Backend:**
+   ```bash
+   cd backend
+   npm start
    ```
-
-4. **Start Development Servers**
-   ```bash
-   # Terminal 1: Start backend server
-   cd backend
-   npm run dev
    
-   # Terminal 2: Start frontend server
+   **Frontend:**
+   ```bash
    cd frontend
    npm run dev
    ```
 
-5. **Open your browser**
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:3001`
+4. **Access the application**
+   - Frontend: `http://localhost:5174`
+   - Backend API: `http://localhost:3000`
 
-### 🎯 **Demo Mode**
+### Quick Start Scripts
 
-The app includes demo accounts for easy testing:
+For convenience, you can use the provided batch files:
 
-- **Email:** `demo@screensquad.com` (any password)
-- **Email:** `john@example.com` (any password) 
-- **Email:** `sarah@example.com` (any password)
+```bash
+# Windows users
+.\setup.bat      # Install all dependencies
+.\start-dev.bat  # Start both servers
+```
 
-Or create a new account - all data is stored locally in demo mode.
+## 🎮 How to Use
 
-## 📖 Usage Guide
+### Creating a Squad
+1. Sign up or log in to your account
+2. Click "Create Squad" on the dashboard
+3. Give your squad a name and description
+4. Share the squad link with friends
 
-### **Creating Your First Squad**
+### Adding Videos
+1. Open your squad as a host
+2. Click "Manage Videos" to open the video library
+3. Click "Add Video" and paste a YouTube or Google Drive URL
+4. Your video will appear in the library with thumbnail
 
-1. **Sign up** or use a demo account
-2. **Dashboard** → "Create New Squad"
-3. **Name your squad** and invite friends
-4. **Start watching** by adding a video URL
+### Starting a Watch Party
+1. Select a video from the library
+2. The video will load in the Squad Theater
+3. Use the host controls to play, pause, or seek
+4. All members will automatically sync with your actions
 
-### **Watching Together**
+### Screen Sharing
+1. Click "Share Screen" in the video manager
+2. Grant permission when prompted
+3. Select the screen/window to share
+4. Your screen will appear live for all squad members
 
-1. **Join a squad** from your dashboard
-2. **Add video** using the "Add Video" button
-3. **Paste video URL** (MP4, Google Drive, Dropbox)
-4. **Enjoy synchronized playback** with your squad
+## 🛠️ Technology Stack
 
-### **Interactive Features**
+### Frontend
+- **React 18** - Modern UI framework
+- **Vite** - Fast build tool and dev server
+- **Tailwind CSS** - Utility-first styling
+- **React Router** - Client-side routing
+- **Zustand** - State management
 
-- **React:** Click emoji buttons during playback
-- **Chat:** Use the sidebar to chat with squad members
-- **Control:** Play/pause/seek controls sync for everyone
-- **Screen Share:** Share your screen for any content
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **Socket.io** - Real-time communication
+- **JWT** - Authentication
+- **bcrypt** - Password hashing
 
-## 🏗️ Project Structure
+### Key Features Implementation
+- **Real-time Sync**: WebSocket-based synchronization
+- **Video Embedding**: YouTube/Google Drive API integration
+- **Screen Sharing**: WebRTC getDisplayMedia API
+- **Responsive Design**: Mobile-first Tailwind CSS
+
+## 📁 Project Structure
 
 ```
-screensquad/
-├── frontend/                 # React frontend application
+ScreenSquad/
+├── backend/                 # Node.js Express server
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   │   ├── ui/         # Base UI components
-│   │   │   └── Navbar.jsx  # Navigation component
+│   │   ├── controllers/     # Route controllers
+│   │   ├── middleware/      # Auth & rate limiting
+│   │   ├── models/          # Data models
+│   │   ├── routes/          # API routes
+│   │   ├── socket/          # Socket.io handlers
+│   │   └── utils/           # Utility functions
+│   └── server.js           # Server entry point
+│
+├── frontend/               # React application
+│   ├── src/
+│   │   ├── components/     # Reusable components
+│   │   │   ├── auth/       # Authentication components
+│   │   │   ├── chat/       # Chat system
+│   │   │   ├── squad/      # Squad management
+│   │   │   ├── ui/         # UI components
+│   │   │   └── video/      # Video player & manager
+│   │   ├── hooks/          # Custom React hooks
 │   │   ├── pages/          # Page components
-│   │   │   ├── Landing.jsx # Landing/auth page
-│   │   │   ├── Dashboard.jsx # Main dashboard
-│   │   │   └── Squad.jsx   # Squad room interface
-│   │   ├── store/          # Zustand state stores
-│   │   │   ├── authStore.js    # Authentication state
-│   │   │   ├── squadStore.js   # Squad management
-│   │   │   ├── videoStore.js   # Video player state
-│   │   │   └── socketStore.js  # Socket.IO state
-│   │   ├── utils/          # Utility functions
-│   │   └── App.jsx         # Main app component
-│   ├── public/             # Static assets
-│   └── package.json        # Frontend dependencies
-├── backend/                 # Node.js backend server
-│   ├── routes/             # API route handlers
-│   │   ├── auth.js        # Authentication routes
-│   │   ├── squads.js      # Squad management routes
-│   │   └── videos.js      # Video handling routes
-│   ├── socket/            # Socket.IO event handlers
-│   ├── middleware/        # Express middleware
-│   ├── server.js          # Main server file
-│   └── package.json       # Backend dependencies
-└── README.md              # This file
+│   │   ├── store/          # State management
+│   │   └── utils/          # Frontend utilities
+│   └── index.html         # Entry HTML
+│
+├── docs/                  # Documentation
+├── setup.bat             # Windows setup script
+├── start-dev.bat         # Windows dev server script
+└── README.md             # This file
 ```
 
 ## 🔧 Configuration
 
-### **Environment Variables**
+### Environment Variables
 
-#### Backend (.env)
+Create `.env` files in both `backend/` and `frontend/` directories:
+
+**Backend (.env):**
 ```env
-PORT=3001
+PORT=3000
+JWT_SECRET=your_jwt_secret_here
 NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
-JWT_SECRET=your_jwt_secret
 ```
 
-#### Frontend (.env) - Optional
+**Frontend (.env):**
 ```env
-VITE_API_URL=http://localhost:3001
-VITE_SOCKET_URL=http://localhost:3001
+VITE_API_URL=http://localhost:3000
+VITE_SOCKET_URL=http://localhost:3000
 ```
 
-### **Supported Video Sources**
+### Browser Requirements
 
-- **Direct Links:** `.mp4`, `.webm`, `.ogg` files
-- **Google Drive:** Shareable links (automatically converted)
-- **Dropbox:** Direct download links
-- **Screen Sharing:** Browser-based capture
-- **Coming Soon:** YouTube, Vimeo, Netflix Party integration
+- **Chrome 72+** (recommended for screen sharing)
+- **Firefox 66+**
+- **Safari 13+**
+- **Edge 79+**
 
-## 🎨 Customization
-
-### **Theming**
-
-The app uses Tailwind CSS with custom colors defined in `tailwind.config.js`:
-
-```javascript
-colors: {
-  'squad-primary': {
-    50: '#eff6ff',
-    500: '#3b82f6',
-    600: '#2563eb',
-    700: '#1d4ed8',
-  },
-  'squad-secondary': {
-    50: '#f0fdf4',
-    500: '#22c55e',
-    600: '#16a34a',
-  }
-}
-```
-
-### **Component Styling**
-
-All UI components are built with Tailwind CSS and support custom className props for easy customization.
-
-## 🚀 Deployment
-
-### **Frontend (Vercel)**
-
-1. **Build the project**
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. **Deploy to Vercel**
-   ```bash
-   npm install -g vercel
-   vercel --prod
-   ```
-
-### **Backend (Railway/Heroku)**
-
-1. **Set environment variables** in your hosting platform
-2. **Deploy using Git** or platform-specific CLI
-3. **Update CORS settings** with your frontend URL
-
-### **Environment-specific Settings**
-
-- Update `VITE_API_URL` in frontend for production
-- Configure `FRONTEND_URL` in backend for CORS
-- Set up SSL certificates for HTTPS
+**Note**: Screen sharing requires HTTPS in production or localhost for development.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Here's how you can help:
 
-### **Development Workflow**
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+### Development Guidelines
+- Follow the existing code style
+- Write clear commit messages
+- Test your changes thoroughly
+- Update documentation as needed
 
-### **Code Style**
+## 🐛 Known Issues
 
-- **ESLint** for JavaScript linting
-- **Prettier** for code formatting
-- **Conventional Commits** for commit messages
+- Screen sharing may not work on all browsers
+- Large video files may take time to sync initially
+- Mobile experience is optimized but desktop is recommended
 
-## 📝 API Documentation
+## 📞 Contact & Support
 
-### **Authentication Endpoints**
-
-```
-POST /api/auth/register     # Create new account
-POST /api/auth/login        # User login
-POST /api/auth/logout       # User logout
-GET  /api/auth/me          # Get current user
-```
-
-### **Squad Endpoints**
-
-```
-GET    /api/squads         # Get user's squads
-POST   /api/squads         # Create new squad
-GET    /api/squads/:id     # Get squad details
-PUT    /api/squads/:id     # Update squad
-DELETE /api/squads/:id     # Delete squad
-POST   /api/squads/:id/join # Join squad
-```
-
-### **Real-time Events**
-
-```
-join-room        # Join squad room
-leave-room       # Leave squad room
-video-action     # Play/pause/seek events
-chat-message     # Send chat message
-reaction         # Send reaction
-screen-share     # Start screen sharing
-```
-
-## 🐛 Troubleshooting
-
-### **Common Issues**
-
-**Video not loading:**
-- Check if the video URL is accessible
-- Ensure CORS headers allow video embedding
-- Try a different video source
-
-**Sync issues:**
-- Check internet connection stability
-- Verify WebSocket connection in browser dev tools
-- Try refreshing the page
-
-**Screen sharing not working:**
-- Ensure you're using HTTPS (required for screen capture)
-- Check browser permissions for screen sharing
-- Use Chrome/Firefox for best compatibility
-
-## 📊 Performance
-
-- **Video Sync Latency:** < 500ms
-- **Chat Message Latency:** < 100ms
-- **Connection Reliability:** 99.9% uptime
-- **Supported Concurrent Users:** 100+ per squad
+- **GitHub**: [RayendraNagata/ScreenSquad](https://github.com/RayendraNagata/ScreenSquad)
+- **Discord**: `fallininfall` for questions and support
+- **Issues**: Report bugs via [GitHub Issues](https://github.com/RayendraNagata/ScreenSquad/issues)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- **Socket.IO** team for real-time communication
-- **React** and **Vite** teams for amazing developer experience
-- **Tailwind CSS** for utility-first styling
-- **Framer Motion** for smooth animations
-- **Supabase** for backend-as-a-service
+- **React** team for the amazing framework
+- **Tailwind CSS** for the utility-first approach
+- **Socket.io** for real-time communication
+- **YouTube API** for video embedding capabilities
 
 ---
 
-**Made with ❤️ for bringing people together through shared experiences.**
+**Made with ❤️ by [RayendraNagata](https://github.com/RayendraNagata)**
 
-**⭐ Star us on GitHub if you like this project!**
+*Happy watching together! 🍿*

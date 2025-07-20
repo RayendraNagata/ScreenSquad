@@ -2,60 +2,69 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../store/authStore';
-import useSquadStore from '../store/squadStore';
-import useVideoStore from '../store/videoStore';
+import useSquadStore from '../store/squadStore_fixed';
 import useSocketStore from '../store/socketStore';
+import useVideoStore from '../store/videoStore';
+import { useUserRole, useVideoControl, usePlaybackState } from '../hooks/useGlobalStore';
 import useDriftCorrection from '../hooks/useDriftCorrection';
 import { Card, Avatar } from '../components/ui/index.jsx';
 import Button from '../components/ui/Button';
 import DriftMonitor from '../components/DriftMonitor';
 import DriftSettings from '../components/DriftSettings';
+import EnhancedVideoPlayer from '../components/EnhancedVideoPlayer';
+import RoleManager from '../components/RoleManager';
+import VideoLibrary from '../components/VideoLibrary';
+import WebWorkerDebugMonitor from '../components/WebWorkerDebugMonitor';
+import ConnectionStatus from '../components/ConnectionStatus';
+import { launchConnectionStatusDemo } from '../components/ConnectionStatusDemo';
 
 const Squad = () => {
   const { squadId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { currentSquad, fetchSquadById } = useSquadStore();
-  const { 
-    currentVideo, 
-    isPlaying, 
-    currentTime, 
-    duration, 
-    isLoading,
-    loadVideo,
-    playVideo,
-    pauseVideo,
-    seekVideo,
-    setVolume,
-    smartSync,
-    resetDriftCorrection
-  } = useVideoStore();
+  const { currentSquad, fetchSquadById, isLoading: squadLoading, error: squadError } = useSquadStore();
   const { socket, isConnected } = useSocketStore();
   
+  console.log('Squad component render:', { squadId, user, currentSquad, squadLoading, squadError });
+  
+  // Global Store Hooks
+  const { currentVideo } = useVideoControl();
+  const { isPlaying } = usePlaybackState();
+  const { joinSquad } = useUserRole();
+  
+  // WebWorker initialization
+  const { initializeWorker, workerInitialized, performFullSyncWithWorker } = useVideoStore();
+  
   // Initialize drift correction
-  const driftCorrection = useDriftCorrection(isConnected && currentVideo, 3000); // Check every 3 seconds
+  const driftCorrection = useDriftCorrection(isConnected && currentVideo, 3000);
   
   const [showChat, setShowChat] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [reactions, setReactions] = useState([]);
-  const [showVideoUpload, setShowVideoUpload] = useState(false);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [showVideoLibrary, setShowVideoLibrary] = useState(false);
+  const [showRoleManager, setShowRoleManager] = useState(false);
   const [members, setMembers] = useState([]);
   const [syncStatus, setSyncStatus] = useState('synced');
   
-  const videoPlayerRef = useRef(null);
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    if (squadId) {
-      fetchSquadById(squadId);
+    if (squadId && user) {
+      console.log('Fetching squad:', squadId);
+      fetchSquadById(squadId).then(result => {
+        console.log('Fetch squad result:', result);
+      });
+      // Join squad via global store
+      joinSquad(squadId);
+      
       // Join squad room via socket
-      if (socket && isConnected) {
+      if (socket && isConnected && user) {
+        console.log('Joining squad:', { squadId, user });
         socket.emit('join-squad', { squadId, user });
       }
     }
-  }, [squadId, socket, isConnected, user, fetchSquadById]);
+  }, [squadId, socket, isConnected, user, fetchSquadById, joinSquad]);
 
   useEffect(() => {
     // Socket event listeners
@@ -113,6 +122,20 @@ const Squad = () => {
       };
     }
   }, [socket]);
+
+  // Keyboard shortcuts untuk demo
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      // Ctrl+Alt+C untuk ConnectionStatus demo
+      if (event.ctrlKey && event.altKey && event.key === 'c') {
+        event.preventDefault();
+        launchConnectionStatusDemo();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   const handleVideoAction = (action, data = {}) => {
     // Emit to other squad members
@@ -205,6 +228,41 @@ const Squad = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Loading state
+  if (squadLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Squad...</h2>
+          <p className="text-gray-600">Getting everything ready for you</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (squadError) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Something went wrong</h2>
+          <p className="text-gray-600 mb-6">{squadError}</p>
+          <div className="space-x-4">
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Try Again
+            </Button>
+            <Button onClick={() => navigate('/dashboard')}>
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Squad not found state
   if (!currentSquad) {
     return (
       <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
@@ -551,6 +609,16 @@ const Squad = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* WebWorker Debug Monitor */}
+      <WebWorkerDebugMonitor />
+
+      {/* Connection Status */}
+      <ConnectionStatus 
+        position="top-left"
+        showDetails={true}
+        autoHide={false}
+      />
     </div>
   );
 };
