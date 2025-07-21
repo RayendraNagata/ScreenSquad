@@ -14,9 +14,9 @@ const Input = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = 'input';
+  const baseClasses = 'w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400';
   const errorClasses = error ? 'border-red-500 focus:ring-red-500' : '';
-  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : '';
+  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-gray-900' : '';
 
   const classes = `
     ${baseClasses}
@@ -28,7 +28,7 @@ const Input = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           {label}
         </label>
       )}
@@ -44,7 +44,7 @@ const Input = ({
         {...props}
       />
       {error && errorMessage && (
-        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+        <p className="mt-1 text-sm text-red-400">{errorMessage}</p>
       )}
     </div>
   );

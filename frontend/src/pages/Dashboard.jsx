@@ -36,44 +36,48 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600">Loading your squads...</p>
+          <p className="mt-4 text-gray-300">Loading your squads...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="page-container pt-20">
+      <div className="page-content">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.username}! 👋
+              <h1 className="text-4xl font-bold text-white mb-2">
+                Welcome back, {user?.username}
               </h1>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-gray-400">
                 Ready to watch together with your squads?
               </p>
             </div>
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Button 
                   onClick={() => navigate('/my-squads')}
-                  variant="outline"
-                  className="px-6 py-3 text-lg border-squad-primary-600 text-squad-primary-600 hover:bg-squad-primary-50"
+                  variant="secondary"
+                  className="px-6 py-3 text-lg btn-secondary w-full sm:w-auto"
                 >
-                  📋 View All Squads
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 00.967.742L7 5.5V7a2 2 0 012 2v6.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V9a2 2 0 012-2V5.5l.033-.258A1 1 0 0014 4V3a2 2 0 012 2v9.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 14.5V5z" clipRule="evenodd" />
+                  </svg>
+                  View All Squads
                 </Button>
               </motion.div>
               <motion.div 
@@ -82,9 +86,12 @@ const Dashboard = () => {
               >
                 <Button 
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-squad-primary-600 hover:bg-squad-primary-700 text-white px-6 py-3 text-lg"
+                  className="btn-primary px-6 py-3 text-lg w-full sm:w-auto"
                 >
-                  + Create New Squad
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  Create New Squad
                 </Button>
               </motion.div>
             </div>

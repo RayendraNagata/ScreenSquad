@@ -42,10 +42,10 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600">Loading ScreenSquad...</p>
+          <p className="mt-4 text-gray-300">Loading ScreenSquad...</p>
         </div>
       </div>
     );
@@ -54,7 +54,7 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-950">
           {isAuthenticated && <Navbar />}
           
           <Routes>

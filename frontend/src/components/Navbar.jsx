@@ -84,7 +84,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-gray-900 shadow-lg border-b border-gray-800 z-50 backdrop-blur-sm bg-opacity-95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -94,10 +94,10 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg className="w-8 h-8 text-squad-primary-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 2l4.5 3-4.5 3V5z" clipRule="evenodd" />
             </svg>
-            <span className="text-xl font-bold text-squad-primary-600">ScreenSquad</span>
+            <span className="text-xl font-bold text-white">ScreenSquad</span>
           </motion.div>
 
           {/* Navigation Links - Desktop */}
@@ -112,8 +112,8 @@ const Navbar = () => {
                   onClick={() => navigate(item.path)}
                   className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive 
-                      ? 'text-squad-primary-600 bg-squad-primary-50' 
-                      : 'text-gray-600 hover:text-squad-primary-600 hover:bg-gray-50'
+                      ? 'text-blue-400 bg-blue-500 bg-opacity-20 border border-blue-500 border-opacity-30' 
+                      : 'text-gray-300 hover:text-blue-400 hover:bg-gray-800'
                   }`}
                   whileHover={{ y: -1 }}
                   whileTap={{ y: 0 }}
