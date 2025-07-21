@@ -137,7 +137,7 @@ const Dashboard = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Squads</h2>
+          <h2 className="text-2xl font-bold text-gray-100 mb-6">Your Squads</h2>
           
           {squads.length === 0 ? (
             <motion.div 
@@ -146,8 +146,8 @@ const Dashboard = () => {
               className="text-center py-16"
             >
               <div className="text-6xl mb-4">🎬</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">No squads yet!</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-gray-100 mb-2">No squads yet!</h3>
+              <p className="text-gray-300 mb-8 max-w-md mx-auto">
                 Create your first squad and start watching movies together with friends. 
                 It's more fun when you're not alone!
               </p>
@@ -177,13 +177,13 @@ const Dashboard = () => {
                         {squad.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-gray-800">{squad.name}</h3>
-                        <p className="text-sm text-gray-600">{squad.members?.length || 1} members</p>
+                        <h3 className="text-lg font-bold text-gray-100">{squad.name}</h3>
+                        <p className="text-sm text-gray-300">{squad.members?.length || 1} members</p>
                       </div>
                     </div>
                     
                     <div className="mb-4">
-                      <div className="text-sm text-gray-600 mb-2">Recent Activity</div>
+                      <div className="text-sm text-gray-300 mb-2">Recent Activity</div>
                       <div className="text-sm text-squad-primary-600">
                         {squad.lastActivity || 'Watched "The Matrix" together'}
                       </div>
@@ -203,13 +203,13 @@ const Dashboard = () => {
                           />
                         ))}
                         {squad.members?.length > 3 && (
-                          <div className="member-avatar bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
+                          <div className="member-avatar bg-gray-700 flex items-center justify-center text-xs font-semibold text-gray-300">
                             +{squad.members.length - 3}
                           </div>
                         )}
                       </div>
                       
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-400">
                         {squad.isActive ? (
                           <span className="text-green-600 flex items-center">
                             <div className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></div>
@@ -234,7 +234,7 @@ const Dashboard = () => {
           transition={{ delay: 0.3 }}
           className="mt-12"
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+          <h2 className="text-2xl font-bold text-gray-100 mb-6">Recent Activity</h2>
           <div className="space-y-4">
             {[
               { text: "You watched 'Inception' with Movie Night Squad", time: "2 hours ago", emoji: "🎬" },
@@ -251,8 +251,8 @@ const Dashboard = () => {
                 <Card className="flex items-center space-x-4 p-4">
                   <div className="text-2xl">{activity.emoji}</div>
                   <div className="flex-1">
-                    <p className="text-gray-800">{activity.text}</p>
-                    <p className="text-sm text-gray-500">{activity.time}</p>
+                    <p className="text-gray-100">{activity.text}</p>
+                    <p className="text-sm text-gray-400">{activity.time}</p>
                   </div>
                 </Card>
               </motion.div>
@@ -264,9 +264,9 @@ const Dashboard = () => {
       {/* Create Squad Modal */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)}>
         <div className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">Create New Squad</h3>
+          <h3 className="text-2xl font-bold text-gray-100 mb-4">Create New Squad</h3>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Squad Name
             </label>
             <input

@@ -195,8 +195,14 @@ const Navbar = () => {
                         </div>
                       )}
                     </div>
-                    <div className="px-4 py-2 border-t border-gray-100">
-                      <button className="text-sm text-squad-primary-600 hover:text-squad-primary-700 font-medium">
+                    <div className="px-4 py-2 border-t border-gray-700">
+                      <button 
+                        onClick={() => {
+                          navigate('/notifications');
+                          setShowNotifications(false);
+                        }}
+                        className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                      >
                         View all notifications
                       </button>
                     </div>

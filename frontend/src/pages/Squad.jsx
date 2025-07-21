@@ -231,11 +231,11 @@ const Squad = () => {
   // Loading state
   if (squadLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 pt-20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Squad...</h2>
-          <p className="text-gray-600">Getting everything ready for you</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">Loading Squad...</h2>
+          <p className="text-gray-300">Getting everything ready for you</p>
         </div>
       </div>
     );
@@ -244,11 +244,11 @@ const Squad = () => {
   // Error state
   if (squadError) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 pt-20 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Something went wrong</h2>
-          <p className="text-gray-600 mb-6">{squadError}</p>
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">Something went wrong</h2>
+          <p className="text-gray-300 mb-6">{squadError}</p>
           <div className="space-x-4">
             <Button onClick={() => window.location.reload()} variant="outline">
               Try Again
@@ -265,11 +265,11 @@ const Squad = () => {
   // Squad not found state
   if (!currentSquad) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 pt-20 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">🎬</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Squad not found</h2>
-          <p className="text-gray-600 mb-6">This squad might not exist or you don't have access.</p>
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">Squad not found</h2>
+          <p className="text-gray-300 mb-6">This squad might not exist or you don't have access.</p>
           <Button onClick={() => navigate('/dashboard')}>
             Back to Dashboard
           </Button>
