@@ -1,43 +1,41 @@
-# 🎬 ScreenSquad
+# ScreenSquad
 
-**Watch videos together in perfect sync with your friends!**
+**Watch videos together in perfect sync with your friends**
 
 ScreenSquad is a real-time video synchronization platform that allows you to create watch parties with friends. Whether it's YouTube videos, Google Drive content, or screen sharing, everyone stays perfectly in sync.
 
-![ScreenSquad Demo](https://via.placeholder.com/800x400/1f2937/ffffff?text=ScreenSquad+Demo)
+## Features
 
-## ✨ Features
-
-### 🎥 **Multi-Platform Video Support**
+### Multi-Platform Video Support
 - **YouTube Integration**: Seamless YouTube video embedding and playback
 - **Google Drive Videos**: Direct support for Google Drive video files
 - **Screen Sharing**: Real-time screen sharing with HD quality
 - **Direct Video Files**: Support for MP4, WebM, and other video formats
 
-### 👥 **Squad Management**
+### Squad Management
 - **Create Squads**: Set up private watch parties with custom names
 - **Role-Based Access**: Host controls vs. member view-only permissions
 - **Real-time Sync**: Automatic synchronization across all viewers
 - **Member Management**: See who's online and their roles
 
-### 💬 **Interactive Features**
+### Interactive Features
 - **Live Chat**: Real-time messaging during video sessions
 - **Reaction System**: Quick emoji reactions to moments
 - **Activity Feed**: Track squad activity and chat history
 
-### 🎛️ **Host Controls**
+### Host Controls
 - **Video Library Management**: Add, remove, and organize videos
 - **Playback Control**: Play, pause, and seek for all members
 - **Screen Share**: Share your screen with the entire squad
 - **Sync Management**: Ensure everyone stays perfectly synchronized
 
-### 🔒 **User Experience**
+### User Experience
 - **Modern UI**: Clean, dark theme optimized for video watching
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Authentication**: Secure user accounts and squad access
 - **Real-time Updates**: Instant updates without page refreshes
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
@@ -48,11 +46,7 @@ ScreenSquad is a real-time video synchronization platform that allows you to cre
 1. **Clone the repository**
    ```bash
    git clone https://github.com/RayendraNagata/ScreenSquad.git
-<<<<<<< HEAD
    cd ScreenSquad
-=======
-   cd screensquad
->>>>>>> f73019e3cd6cbbf4a300cd5dcb9d0b8759148ac9
    ```
 
 2. **Install dependencies**
@@ -94,7 +88,7 @@ For convenience, you can use the provided batch files:
 .\start-dev.bat  # Start both servers
 ```
 
-## 🎮 How to Use
+## How to Use
 
 ### Creating a Squad
 1. Sign up or log in to your account
@@ -120,7 +114,7 @@ For convenience, you can use the provided batch files:
 3. Select the screen/window to share
 4. Your screen will appear live for all squad members
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **React 18** - Modern UI framework
@@ -142,7 +136,7 @@ For convenience, you can use the provided batch files:
 - **Screen Sharing**: WebRTC getDisplayMedia API
 - **Responsive Design**: Mobile-first Tailwind CSS
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ScreenSquad/
@@ -176,7 +170,7 @@ ScreenSquad/
 └── README.md             # This file
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -204,7 +198,7 @@ VITE_SOCKET_URL=http://localhost:3000
 
 **Note**: Screen sharing requires HTTPS in production or localhost for development.
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how you can help:
 
@@ -220,23 +214,23 @@ We welcome contributions! Here's how you can help:
 - Test your changes thoroughly
 - Update documentation as needed
 
-## 🐛 Known Issues
+## Known Issues
 
 - Screen sharing may not work on all browsers
 - Large video files may take time to sync initially
 - Mobile experience is optimized but desktop is recommended
 
-## 📞 Contact & Support
+## Contact & Support
 
 - **GitHub**: [RayendraNagata/ScreenSquad](https://github.com/RayendraNagata/ScreenSquad)
 - **Discord**: `fallininfall` for questions and support
 - **Issues**: Report bugs via [GitHub Issues](https://github.com/RayendraNagata/ScreenSquad/issues)
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **React** team for the amazing framework
 - **Tailwind CSS** for the utility-first approach
@@ -246,5 +240,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 **Made with ❤️ by [RayendraNagata](https://github.com/RayendraNagata)**
-
-*Happy watching together! 🍿*
