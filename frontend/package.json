@@ -8,9 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test": "vitest --config vitest.config.ts",
+    "test:ui": "vitest --ui --config vitest.config.ts",
+    "test:coverage": "vitest --coverage --config vitest.config.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",
