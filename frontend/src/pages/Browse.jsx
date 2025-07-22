@@ -11,10 +11,9 @@ const Browse = () => {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState('all'); // all, squads, videos, users
   const [category, setCategory] = useState('all'); // all, movies, tv-shows, anime, gaming, education
 
-  // Dummy data for browse content
+  // Dummy data for browse content - only squads
   const [browseData, setBrowseData] = useState({
     squads: [
       {
@@ -65,50 +64,6 @@ const Browse = () => {
         host: 'StudyBuddy',
         isActive: true
       }
-    ],
-    videos: [
-      {
-        id: 1,
-        title: 'The Avengers',
-        description: 'Earth\'s Mightiest Heroes must come together...',
-        duration: '143 minutes',
-        category: 'movies',
-        thumbnail: 'https://picsum.photos/400/225?random=5',
-        rating: 4.8,
-        views: 1234,
-        tags: ['Action', 'Adventure', 'Superhero']
-      },
-      {
-        id: 2,
-        title: 'Attack on Titan S1E1',
-        description: 'The beginning of humanity\'s fight for survival',
-        duration: '24 minutes',
-        category: 'anime',
-        thumbnail: 'https://picsum.photos/400/225?random=6',
-        rating: 4.9,
-        views: 2341,
-        tags: ['Anime', 'Action', 'Drama']
-      }
-    ],
-    users: [
-      {
-        id: 1,
-        username: 'MovieBuff92',
-        avatar: 'https://picsum.photos/64/64?random=10',
-        squadsHosted: 3,
-        followers: 156,
-        bio: 'Love discovering hidden gems in cinema',
-        isOnline: true
-      },
-      {
-        id: 2,
-        username: 'AnimeExpert',
-        avatar: 'https://picsum.photos/64/64?random=11',
-        squadsHosted: 2,
-        followers: 89,
-        bio: 'Anime enthusiast and Japanese culture lover',
-        isOnline: false
-      }
     ]
   });
 
@@ -121,23 +76,9 @@ const Browse = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Filter and search logic
+  // Filter and search logic - only squads
   const getFilteredResults = () => {
-    let results = [];
-    
-    if (filter === 'all') {
-      results = [
-        ...browseData.squads.map(item => ({ ...item, type: 'squad' })),
-        ...browseData.videos.map(item => ({ ...item, type: 'video' })),
-        ...browseData.users.map(item => ({ ...item, type: 'user' }))
-      ];
-    } else if (filter === 'squads') {
-      results = browseData.squads.map(item => ({ ...item, type: 'squad' }));
-    } else if (filter === 'videos') {
-      results = browseData.videos.map(item => ({ ...item, type: 'video' }));
-    } else if (filter === 'users') {
-      results = browseData.users.map(item => ({ ...item, type: 'user' }));
-    }
+    let results = browseData.squads.map(item => ({ ...item, type: 'squad' }));
 
     // Apply category filter
     if (category !== 'all') {
@@ -147,7 +88,7 @@ const Browse = () => {
     // Apply search filter
     if (searchQuery) {
       results = results.filter(item => 
-        (item.name || item.title || item.username)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
@@ -158,23 +99,18 @@ const Browse = () => {
 
   const filteredResults = getFilteredResults();
 
-  // Stats
+  // Stats - only squads
   const stats = {
     totalSquads: browseData.squads.length,
     activeSquads: browseData.squads.filter(s => s.isActive).length,
-    totalVideos: browseData.videos.length,
-    totalUsers: browseData.users.length
+    totalMembers: browseData.squads.reduce((acc, squad) => acc + squad.members, 0),
+    categories: [...new Set(browseData.squads.map(s => s.category))].length
   };
 
   const joinSquad = (squadId) => {
     // TODO: Implement join squad functionality
     console.log('Joining squad:', squadId);
     navigate(`/squad/${squadId}`);
-  };
-
-  const followUser = (userId) => {
-    // TODO: Implement follow user functionality
-    console.log('Following user:', userId);
   };
 
   if (isLoading) {
@@ -203,10 +139,10 @@ const Browse = () => {
                 <svg className="w-10 h-10 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                 </svg>
-                Browse
+                Browse Squads
               </h1>
               <p className="text-xl text-gray-300">
-                Discover new squads, videos, and creators
+                Discover and join public squads
               </p>
             </div>
           </div>
@@ -222,7 +158,7 @@ const Browse = () => {
           <div className="relative max-w-2xl">
             <Input
               type="text"
-              placeholder="Search squads, videos, or users..."
+              placeholder="Search squads..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 text-lg"
@@ -246,19 +182,19 @@ const Browse = () => {
         >
           <Card className="p-6 text-center">
             <div className="text-3xl font-bold text-blue-500 mb-2">{stats.totalSquads}</div>
-            <div className="text-gray-300">Public Squads</div>
+            <div className="text-gray-300">Total Squads</div>
           </Card>
           <Card className="p-6 text-center">
             <div className="text-3xl font-bold text-green-500 mb-2">{stats.activeSquads}</div>
             <div className="text-gray-300">Active Now</div>
           </Card>
           <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-purple-500 mb-2">{stats.totalVideos}</div>
-            <div className="text-gray-300">Featured Videos</div>
+            <div className="text-3xl font-bold text-purple-500 mb-2">{stats.totalMembers}</div>
+            <div className="text-gray-300">Total Members</div>
           </Card>
           <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-orange-500 mb-2">{stats.totalUsers}</div>
-            <div className="text-gray-300">Active Creators</div>
+            <div className="text-3xl font-bold text-orange-500 mb-2">{stats.categories}</div>
+            <div className="text-gray-300">Categories</div>
           </Card>
         </motion.div>
 
@@ -269,35 +205,12 @@ const Browse = () => {
           transition={{ delay: 0.3 }}
           className="mb-8"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Content Type Filter */}
-            <div className="flex space-x-2">
-              <span className="text-gray-300 text-sm flex items-center">Type:</span>
-              {[
-                { key: 'all', label: 'All' },
-                { key: 'squads', label: 'Squads' },
-                { key: 'videos', label: 'Videos' },
-                { key: 'users', label: 'Users' }
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setFilter(tab.key)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filter === tab.key
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4">
             {/* Category Filter */}
             <div className="flex space-x-2">
               <span className="text-gray-300 text-sm flex items-center">Category:</span>
               {[
-                { key: 'all', label: 'All' },
+                { key: 'all', label: 'All Categories' },
                 { key: 'movies', label: 'Movies' },
                 { key: 'tv-shows', label: 'TV Shows' },
                 { key: 'anime', label: 'Anime' },
@@ -309,7 +222,7 @@ const Browse = () => {
                   onClick={() => setCategory(cat.key)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     category === cat.key
-                      ? 'bg-purple-600 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
                 >
@@ -336,7 +249,6 @@ const Browse = () => {
               <Button 
                 onClick={() => {
                   setSearchQuery('');
-                  setFilter('all');
                   setCategory('all');
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -354,126 +266,43 @@ const Browse = () => {
                   transition={{ delay: 0.1 * index }}
                 >
                   <Card className="p-6 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                    {item.type === 'squad' && (
-                      <>
-                        <div className="relative mb-4">
-                          <img
-                            src={item.thumbnail}
-                            alt={item.name}
-                            className="w-full h-40 object-cover rounded-lg"
-                          />
-                          {item.isActive && (
-                            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                              Live
-                            </div>
-                          )}
+                    <div className="relative mb-4">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.name}
+                        className="w-full h-40 object-cover rounded-lg"
+                      />
+                      {item.isActive && (
+                        <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          Live
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-100 mb-2">
-                            {item.name}
-                          </h3>
-                          <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                            {item.description}
-                          </p>
-                          <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                            <span>👥 {item.members} members</span>
-                            <span>Host: {item.host}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mb-4">
-                            {item.tags.map((tag, i) => (
-                              <span key={i} className="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => joinSquad(item.id)}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          Join Squad
-                        </Button>
-                      </>
-                    )}
-
-                    {item.type === 'video' && (
-                      <>
-                        <div className="relative mb-4">
-                          <img
-                            src={item.thumbnail}
-                            alt={item.title}
-                            className="w-full h-40 object-cover rounded-lg"
-                          />
-                          <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">
-                            {item.duration}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-100 mb-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                            {item.description}
-                          </p>
-                          <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                            <span>⭐ {item.rating}/5</span>
-                            <span>👀 {item.views} views</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mb-4">
-                            {item.tags.map((tag, i) => (
-                              <span key={i} className="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => navigate('/dashboard')}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          Watch Now
-                        </Button>
-                      </>
-                    )}
-
-                    {item.type === 'user' && (
-                      <>
-                        <div className="flex items-center mb-4">
-                          <img
-                            src={item.avatar}
-                            alt={item.username}
-                            className="w-16 h-16 rounded-full mr-4"
-                          />
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-100 flex items-center">
-                              {item.username}
-                              {item.isOnline && (
-                                <span className="ml-2 w-3 h-3 bg-green-500 rounded-full"></span>
-                              )}
-                            </h3>
-                            <p className="text-gray-400 text-sm">
-                              {item.followers} followers
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-gray-300 text-sm mb-3">
-                            {item.bio}
-                          </p>
-                          <p className="text-gray-400 text-sm mb-4">
-                            Hosting {item.squadsHosted} squad{item.squadsHosted !== 1 ? 's' : ''}
-                          </p>
-                        </div>
-                        <Button
-                          onClick={() => followUser(item.id)}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          Follow
-                        </Button>
-                      </>
-                    )}
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-100 mb-2">
+                        {item.name}
+                      </h3>
+                      <p className="text-gray-300 text-sm mb-3 line-clamp-2">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
+                        <span>👥 {item.members} members</span>
+                        <span>Host: {item.host}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {item.tags.map((tag, i) => (
+                          <span key={i} className="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => joinSquad(item.id)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Join Squad
+                    </Button>
                   </Card>
                 </motion.div>
               ))}

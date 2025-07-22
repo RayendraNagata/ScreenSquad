@@ -11,7 +11,6 @@ import SquadSimple from './pages/SquadSimple';
 import SquadTest from './pages/SquadTest';
 import MySquads from './pages/MySquads';
 import Profile from './pages/Profile';
-import History from './pages/History';
 import Notifications from './pages/Notifications';
 import Browse from './pages/Browse';
 import Diagnostic from './pages/Diagnostic';
@@ -95,13 +94,6 @@ function App() {
             path="/profile" 
             element={
               isAuthenticated ? <Profile /> : <Navigate to="/" replace />
-            } 
-          />
-
-          <Route 
-            path="/history" 
-            element={
-              isAuthenticated ? <History /> : <Navigate to="/" replace />
             } 
           />
 
