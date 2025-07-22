@@ -60,7 +60,17 @@ ScreenSquad is a real-time video synchronization platform that allows you to cre
    npm install
    ```
 
-3. **Start the development servers**
+3. **Set up environment variables**
+   ```bash
+   # Copy environment templates
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   
+   # Edit the .env files with your actual values
+   # Important: Change JWT_SECRET in backend/.env for production!
+   ```
+
+4. **Start the development servers**
    
    **Backend:**
    ```bash
@@ -74,7 +84,7 @@ ScreenSquad is a real-time video synchronization platform that allows you to cre
    npm run dev
    ```
 
-4. **Access the application**
+5. **Access the application**
    - Frontend: `http://localhost:5174`
    - Backend API: `http://localhost:3000`
 

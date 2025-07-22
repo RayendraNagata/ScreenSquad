@@ -10,7 +10,12 @@
     "start": "cd backend && npm start",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "clean": "cd frontend && rm -rf node_modules && cd ../backend && rm -rf node_modules && rm -rf node_modules",
-    "setup": "npm run install:all"
+    "setup": "npm run install:all",
+    "test:frontend": "cd frontend && npm test -- --run",
+    "test:backend": "cd backend && npm test",
+    "test:all": "npm run test:backend && npm run test:frontend",
+    "lint": "cd frontend && npm run lint",
+    "lint:fix": "cd frontend && npm run lint -- --fix"
   },
   "keywords": ["video", "streaming", "sync", "watch-party", "realtime", "youtube", "screenshare", "react", "nodejs"],
   "author": {

@@ -1,0 +1,14 @@
+{
+  "testEnvironment": "node",
+  "setupFilesAfterEnv": ["<rootDir>/src/test/setup.js"],
+  "testMatch": [
+    "**/__tests__/**/*.js",
+    "**/?(*.)+(spec|test).js"
+  ],
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/test/**",
+    "!**/node_modules/**"
+  ],
+  "coverageReporters": ["text", "lcov", "html"]
+}
